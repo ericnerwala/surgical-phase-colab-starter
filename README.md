@@ -1,5 +1,7 @@
 # Surgical Phase Recognition — Colab Starter
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ericnerwala/surgical-phase-colab-starter/blob/main/notebooks/01_dataset_setup_and_eda.ipynb)
+
 Public starter repo for surgical AI experimentation on **CholecT50** with a Colab-first workflow.
 
 ## What this repo includes
