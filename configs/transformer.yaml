@@ -1,0 +1,19 @@
+seed: 42
+data:
+  manifest_csv: data/processed/manifest.csv
+  image_size: 224
+  seq_len: 32
+  train_stride: 8
+  eval_stride: 16
+model:
+  name: transformer
+  pretrained_cnn: true
+  d_model: 256
+  nhead: 8
+  layers: 4
+train:
+  epochs: 8
+  batch_size: 8
+  lr: 0.0003
+  wd: 0.0001
+  output_dir: outputs/transformer_base

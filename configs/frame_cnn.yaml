@@ -1,0 +1,13 @@
+seed: 42
+data:
+  manifest_csv: data/processed/manifest.csv
+  image_size: 224
+model:
+  name: frame_cnn
+  pretrained_cnn: true
+train:
+  epochs: 5
+  batch_size: 16
+  lr: 0.0003
+  wd: 0.0001
+  output_dir: outputs/frame_cnn

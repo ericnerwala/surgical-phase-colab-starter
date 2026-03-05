@@ -1,0 +1,38 @@
+seed: 42
+
+data:
+  manifest_csv: data/processed/manifest.csv
+  image_size: 224
+  seq_len: 32
+  train_stride: 8
+  eval_stride: 16
+  val_frac: 0.2
+
+model:
+  name: cnn_lstm  # one of: frame_cnn, cnn_lstm, tcn, transformer
+  pretrained_cnn: true
+  hidden_dim: 256
+  layers: 1
+  d_model: 256
+  nhead: 8
+  levels: 4
+
+train:
+  epochs: 8
+  batch_size: 8
+  lr: 0.0003
+  wd: 0.0001
+  output_dir: outputs/cnn_lstm_base
+
+ssl:
+  epochs: 5
+  batch_size: 64
+  lr: 0.0003
+  temperature: 0.1
+  proj_dim: 128
+  pretrained_cnn: false
+
+search:
+  lr: [0.0001, 0.0003, 0.001]
+  batch_size: [4, 8, 16]
+  seq_len: [16, 32, 48]
