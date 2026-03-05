@@ -1,0 +1,22 @@
+seed: 42
+model:
+  name: transformer
+  d_model: 256
+  nhead: 8
+  layers: 3
+  pretrained_cnn: true
+data:
+  manifest_csv: data/processed/manifest.csv
+  image_size: 224
+  seq_len: 12
+  train_stride: 2
+  eval_stride: 6
+train:
+  batch_size: 6
+  num_workers: 2
+  epochs: 20
+  lr: 0.0002
+  wd: 0.0001
+  label_smoothing: 0.05
+  use_class_weights: true
+  output_dir: outputs/t4_transformer

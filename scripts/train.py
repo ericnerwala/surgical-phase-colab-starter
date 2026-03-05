@@ -14,6 +14,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+import numpy as np
 
 from surgical_phase.data.dataset import FrameDataset, SequenceDataset
 from surgical_phase.engine.trainer import train_loop
@@ -91,12 +92,35 @@ def main():
             augment=False,
         )
 
-    train_loader = DataLoader(train_ds, batch_size=cfg["train"].get("batch_size", 8), shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_ds, batch_size=cfg["train"].get("batch_size", 8), shuffle=False, num_workers=2)
+    num_workers = cfg["train"].get("num_workers", 2)
+    train_loader = DataLoader(train_ds, batch_size=cfg["train"].get("batch_size", 8), shuffle=True, num_workers=num_workers)
+    val_loader = DataLoader(val_ds, batch_size=cfg["train"].get("batch_size", 8), shuffle=False, num_workers=num_workers)
+
+    # Diagnostics: split/phase coverage
+    print({"rows_total": len(df), "rows_train": len(train_df), "rows_val": len(val_df), "num_classes": num_classes})
+    train_phases = set(train_df.phase.unique().tolist())
+    val_phases = set(val_df.phase.unique().tolist())
+    missing_in_train = sorted(list(val_phases - train_phases))
+    if missing_in_train:
+        print("WARNING: phases present in val but missing in train:", missing_in_train)
 
     model = make_model(cfg, num_classes).to(device)
     optim = torch.optim.AdamW(model.parameters(), lr=cfg["train"].get("lr", 1e-4), weight_decay=cfg["train"].get("wd", 1e-4))
-    criterion = nn.CrossEntropyLoss()
+
+    # Optional class-weighted CE + label smoothing for imbalance robustness
+    use_class_weights = cfg["train"].get("use_class_weights", True)
+    label_smoothing = float(cfg["train"].get("label_smoothing", 0.0))
+    if use_class_weights:
+        counts = np.bincount(train_df.phase.to_numpy(), minlength=num_classes).astype(float)
+        counts[counts == 0] = 1.0
+        weights = 1.0 / counts
+        weights = weights / weights.mean()
+        class_weights = torch.tensor(weights, dtype=torch.float32, device=device)
+        print("class_counts:", counts.tolist())
+        print("class_weights:", [round(float(w), 4) for w in class_weights.detach().cpu()])
+        criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=label_smoothing)
+    else:
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     out_dir = Path(cfg["train"].get("output_dir", "outputs/default"))
     out_dir.mkdir(parents=True, exist_ok=True)

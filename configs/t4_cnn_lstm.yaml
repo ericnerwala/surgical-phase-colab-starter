@@ -1,0 +1,21 @@
+seed: 42
+model:
+  name: cnn_lstm
+  hidden_dim: 256
+  layers: 1
+  pretrained_cnn: true
+data:
+  manifest_csv: data/processed/manifest.csv
+  image_size: 224
+  seq_len: 16
+  train_stride: 2
+  eval_stride: 8
+train:
+  batch_size: 8
+  num_workers: 2
+  epochs: 20
+  lr: 0.0003
+  wd: 0.0001
+  label_smoothing: 0.05
+  use_class_weights: true
+  output_dir: outputs/t4_cnn_lstm
